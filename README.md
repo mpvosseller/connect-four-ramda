@@ -1,22 +1,28 @@
 This is a command line implementation of the game Connect Four.
 
-It is programmed in a mostly functional style using Node.js and [Ramda.js](https://ramdajs.com).
+It is a toy project for learning functional programming with [Ramda.js](https://ramdajs.com).
 
 # Installation
 
-`npm install`
+```
+npm install
+```
 
 # Run
 
-`npm run start`
+```
+npm run start
+```
 
 # Options
 
-`--width=w` - width of the board
-`--height=h` - height of the board
-`--k=n` - number in a row to win
-`--players="<players>"` - game characters
+- `--width=<width>` width of the board
+- `--height=<height>` height of the board
+- `--k=<k>` number in a row to win
+- `--players="<players>"` - game characters
 
-## Run game with options
+### Example with options
 
+```
 `npm run start -- --width=10 --height=5 --k=3 --players="💩 👻 👽"`
+```
