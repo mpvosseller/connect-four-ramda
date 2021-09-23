@@ -1,6 +1,6 @@
 This is a command line implementation of the game Connect Four.
 
-It is a toy project for learning functional programming with [Ramda.js](https://ramdajs.com).
+It is a toy project for learning functional and reactive programming with [Ramda.js](https://ramdajs.com) and [RxJS](https://rxjs.dev).
 
 # Installation
 
