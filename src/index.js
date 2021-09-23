@@ -1,30 +1,41 @@
-const { mergeAll } = require('ramda')
+const { mergeAll, curry, pipe, map } = require('ramda')
+const rxjs = require('rxjs')
 const { createGame, isGameOver, playMove, promptMessage, stringifyGame } = require('./game')
-const { close, createLineReader, prompt } = require('./line-reader')
+const { close, createLineReader, prompt$ } = require('./line-reader')
 const { getOptions } = require('./options')
+const { mapError } = require('./util')
 
 const print = console.log
 const printState = (state) => print(stringifyGame(state.game, state.error))
+const initialState = (options) => ({ game: createGame(options) })
+const mergeStates = (lastState, moveState) => mergeAll([lastState, { error: null }, moveState])
 
-const runGame = async (lineReader, options) => {
-  let state = { game: createGame(options) }
-  while (!isGameOver(state.game)) {
-    printState(state)
-    const move = await prompt(lineReader, promptMessage(state.game))
-    state = mergeAll([state, { error: null }, playMove(state.game, move)])
-  }
-  printState(state)
-}
+const nextStateFromUser$ = (lineReader, state) =>
+  prompt$(lineReader, promptMessage(state.game)).pipe(
+    rxjs.map((move) => playMove(state.game, move)),
+    rxjs.map((moveState) => mergeStates(state, moveState))
+  )
 
-const main = async (argv) => {
-  const { options, error } = getOptions(argv)
-  if (error) {
-    print(error)
-    return
-  }
+const nextState$ = curry((lineReader, state) =>
+  isGameOver(state.game) ? rxjs.EMPTY : nextStateFromUser$(lineReader, state)
+)
+
+const game$ = (options) => {
   const lineReader = createLineReader()
-  await runGame(lineReader, options)
-  close(lineReader)
+  return rxjs.of(initialState(options)).pipe(
+    rxjs.expand(nextState$(lineReader)),
+    rxjs.tap(printState),
+    rxjs.takeLast(),
+    rxjs.finalize(() => {
+      close(lineReader)
+    })
+  )
 }
+
+const main = pipe(
+  getOptions,
+  map((options) => game$(options).subscribe()),
+  mapError(console.log)
+)
 
 main(process.argv)

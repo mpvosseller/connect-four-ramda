@@ -14,7 +14,7 @@ const {
   tail,
   traverse,
 } = require('ramda')
-const { fromResult, gt0, isNumber, isOnlyDigits, lengthGt0, mapError, validate } = require('./util')
+const { gt0, isNumber, isOnlyDigits, lengthGt0, mapError, validate } = require('./util')
 
 const optionError = (option) => (e) => `--${option}: ${e}`
 const mapOptionError = compose(mapError, optionError)
@@ -68,8 +68,7 @@ const getOptions = pipe(
   filter(lengthGt0),
   map(parseOption(optionParsers)),
   traverse(Result.of, bubbleParseResult),
-  map(fromPairs),
-  fromResult('options')
+  map(fromPairs)
 )
 
 module.exports = {
